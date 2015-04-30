@@ -66,35 +66,39 @@ class sql {
 }
 
 $options = getopt("h:u:d:c:p:", array('host:', 'user:'));
-var_dump($options);
 
 
-$obj = new sql($options['host'], $options['user'], $options['p'], $options['d']);
+if ($options) {
+    var_dump($options);
+    $obj = new sql($options['host'], $options['user'], $options['p'], $options['d']);
 
-$count = (int) $options['c'];
-$insertArr = array();
-$questArr = array();
+    $count = (int) $options['c'];
+    $insertArr = array();
+    $questArr = array();
 
-for ($i = 1; $i <= $count; $i++) {
-
-
-    array_push($questArr, "(?)");
-    array_push($insertArr, "fakeName" . $i);
+    for ($i = 1; $i <= $count; $i++) {
 
 
-    if (($i % 1000) == 0) {
-        $query = "INSERT INTO table1 (Name) VALUES  " . implode(',', $questArr);
-        $stmt = sql::$db->prepare($query, array(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true));
+        array_push($questArr, "(?)");
+        array_push($insertArr, "fakeName" . $i);
 
-        try {
-            $stmt->execute($insertArr);
-        } catch (PDOException $e) {
-            echo $e->getMessage();
+
+        if (($i % 1000) == 0) {
+            $query = "INSERT INTO table1 (Name) VALUES  " . implode(',', $questArr);
+            $stmt = sql::$db->prepare($query, array(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true));
+
+            try {
+                $stmt->execute($insertArr);
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+
+            $stmt->closeCursor();
+            $questArr = array();
+            $insertArr = array();
         }
-
-        $stmt->closeCursor();
-        $questArr = array();
-        $insertArr = array();
     }
+} else {
+    die("Runs only in CLI");
 }
 ?>
